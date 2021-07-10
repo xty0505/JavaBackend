@@ -1,0 +1,95 @@
+# Kubernetess
+
+Kubernetes 被定义成一个用于自动化部署、扩容和管理容器应用的开源系统。
+
+Kubernetes 依赖于容器技术和微服务架构
+
+## 设计理念
+
+### 声明式
+
+直接使用 YAML 文件定义服务的拓扑结构和状态
+
+### 显示接口
+
+不存在内部的私有接口，所有的接口都是显示定义的，组件之间通信使用的接口对于使用者来说都是显式的，我们都可以直接调用。
+
+### 无侵入性
+
+每一个应用或者服务一旦被打包成了镜像就可以直接在 Kubernetes 中无缝使用，不需要修改应用程序中的任何代码。
+
+### 可移植性
+
+微服务架构中往往使所有的服务都是无状态的，以前在内存中存储的数据、Session 等缓存，现在都会放到 Redis、ETCD 等数据库中存储，微服务架构要求我们对业务进行拆分并划清服务之间的边界，所以有状态的服务往往会对架构的水平迁移带来障碍。
+
+然而有状态的服务也是无可避免的，Kubernetes 引入 `PersistentVolume` 和 `PersistentVolumeChain` 的概念屏蔽顶层存储的差异
+
+## 架构
+
+C/S 架构，客户端通过 RESTful 接口或者直接使用 kubectl 和 Kubernetes 集群进行通信。
+
+![image-20210303162706602](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210303162706602.png)
+
+### Master
+
+主要负责
+
+- 管理集群状态
+- 接受客户端请求
+- 安排容器的执行并且运行控制循环
+- 将集群的状态向目标状态进行迁移
+
+![image-20210303163419598](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210303163419598.png)
+
+#### Controller
+
+Controller 在 Controller Manager 的管理下，按照用户的期望状态在后台不断地调节整个集群中的对象，当服务的状态发生了改变，Controller 就会发现这个改变并且开始向目标状态迁移。
+
+#### Scheduler
+
+Scheduler 为 Pod 选择部署的节点，根据用户的要求选择最能满足请求的节点运行 Pod，在每次需要调度 Pod 时执行。
+
+### Worker
+
+![image-20210303164940188](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210303164940188.png)
+
+#### kubelet 
+
+kubelet 是一个节点上的主要服务，它周期性地从 API Server 接受新的或者修改的 Pod 规范并且保证节点上的 Pod 和其中容器的正常运行，还会保证节点会向目标状态迁移，该节点仍然会向 Master 节点发送宿主机的健康状况。
+
+#### kube-proxy
+
+代理服务 kube-proxy 负责宿主机的**子网管理**，同时也能将服务暴露给外部，其原理就是在多个隔离的网络中把请求转发给正确的 Pod 或者容器。
+
+## 实现原理
+
+### 重要概念
+
+#### 对象
+
+对象是系统中的持久实体，它使用这些对象来表示集群中的状态
+
+![image-20210303170536547](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210303170536547.png)
+
+这些对象描述了哪些应用应该运行在集群中，它们请求的资源下限和上限以及重启、升级和容错的策略。每一个创建的对象其实都是我们对集群状态的改变，这些对象描述的其实就是集群的期望状态，Kubernetes 会根据我们指定的期望状态不断检查对当前的集群状态进行迁移。
+
+#### Pod
+
+可以创建或部署的最小且最简单的单元
+
+![image-20210303170643368](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210303170643368.png)
+
+它将应用的容器、存储资源以及独立的网络 IP 地址等资源打包到了一起，表示一个最小的部署单元。
+
+但是每一个 Pod 中的运行的容器可能不止一个，这是因为 Pod 最开始设计时就能够在多个进程之间进行协调，构建一个高内聚的服务单元，这些容器能够共享存储和网络，非常方便地进行通信。
+
+#### Controller
+
+用于创建和管理 Pod 的实例，能够在集群的层级提供复制、发布以及健康检查的功能，这些控制器其实都运行在 Kubernetes 集群的主节点上。
+
+
+
+
+
+
+

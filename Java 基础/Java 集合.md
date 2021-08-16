@@ -315,7 +315,7 @@ Queue接口中提供了两套增加、删除的API，对应失败时两种不同
 
 ### 迭代器模式
 
-![image-20210221142641705](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210221142641705.png)
+![image-20210221142641705](..\pic\image-20210221142641705.png)
 
 Collection 继承了 Iterable 接口，其中的 iterator() 方法能够产生一个 Iterator 对象，通过这个对象就可以迭代遍历 Collection 中的元素。
 
@@ -364,7 +364,7 @@ public class ArrayList<E> extends AbstractList<E>
 private static final int DEFAULT_CAPACITY = 10;
 ```
 
-![image-20210221143326175](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210221143326175.png)
+![image-20210221143326175](..\pic\image-20210221143326175.png)
 
 2.扩容
 

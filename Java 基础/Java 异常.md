@@ -2,7 +2,7 @@
 
 ## 异常类层次
 
-![image-20210304100649589](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210304100649589.png)
+![image-20210304100649589](..\pic\image-20210304100649589.png)
 
 异常主要分为两类
 

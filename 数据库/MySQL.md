@@ -1,5 +1,54 @@
 # MySQL
 
+## 日志
+
+MySQL 日志主要包括错误日志、查询日志、慢查询日志、**事务（redo log 和 undo log）日志和二进制（binlog）**日志。
+
+### binlog
+
+记录数据库的增删改操作的逻辑日志（记录 SQL 语句），以二进制的形式保存在磁盘中。
+
+**使用场景：**
+
+1. 主从复制：在 Master 端开启 binlog，发送到 Slave 端，slave 端重放 binlog 从而同步数据
+2. 数据恢复：通过 mysqlbinlog 工具进行恢复
+
+**刷盘时机**：对于 InnoDB 来说，只有在事务提交的时候才会记录 binlog，此时 binlog 在内存中，通过 sync_binlog 参数控制刷盘时机
+
+- 0：不强制要求，由系统判断何时写入
+- 1：每次提交都要写入
+- N：每 N 个事务才会写入
+
+**日志格式**：
+
+- STATEMENT：基于 SQL 语句的复制，不需要记录每一行的变化，减少了 binlog 的大小，IO次数少，性能较好。某些情况下无法保证主从一致。
+- ROW：基于行的复制，记录每条被修改的数据。保证所有修改操作都能被回放，但是导致 binlog 过大。
+- MIXED：基于以上两种模式混合。
+
+### redo log
+
+redo log 是 InnoDB 用于保证值持久性的手段，记录事务对数据页进行了哪些修改。 redo log 包含两部分：
+
+- 内容中的日志缓冲： redo log buffer
+- 磁盘中的日志文件：redo log file
+
+![image-20210808153649980](..\pic\image-20210808153649980.png)
+
+可以通过 innodb_flush_log_at_trx_commit 参数配置写入磁盘的时机：
+
+- 0延迟写：事务提交时不会将`redo log buffer`中日志写入到`os buffer`，而是每秒写入`os buffer`并调用`fsync()`写入到`redo log file`中。也就是说设置为0时是(大约)每秒刷新写入到磁盘中的，当系统崩溃，会丢失1秒钟的数据。
+- 1实时写，实时刷：事务每次提交都会将`redo log buffer`中的日志写入`os buffer`并调用`fsync()`刷到`redo log file`中。这种方式即使系统崩溃也不会丢失任何数据，但是因为每次提交都写入磁盘，IO的性能较差。
+- 2实时写，延迟刷： 每次提交都仅写入到`os buffer`，然后是每秒调用`fsync()`将`os buffer`中的日志写入到`redo log file`。
+
+![image-20210808154036020](..\pic\image-20210808154036020.png)
+
+相比与数据页写入磁盘，redo log 写入磁盘效率更高：
+
+- 顺序写入同一个 redo log file中
+- redo log IO 数据量远远小于数据页的大小
+
+### undo log
+
 ## MySQL索引
 
 索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。

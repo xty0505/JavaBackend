@@ -86,7 +86,7 @@ FutureTask 是 Future 的实现类，可以用来异步获取线程执行结果
 
 ### execute 执行原理
 
-![image-20210302150534189](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210302150534189.png)
+![image-20210302150534189](..\pic\image-20210302150534189.png)
 
 ### Runable v.s. Callable
 

@@ -45,7 +45,7 @@ Spring AOP 基于**动态代理**，
 - 代理的对象实现了接口，JDK Proxy 创建代理对象
 - 代理对象未实现接口，Cglib 生成一个被代理对象的子类作为代理
 
-![image-20210228195222970](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210228195222970.png)
+![image-20210228195222970](..\pic\image-20210228195222970.png)
 
 Spring AOP 与 AspectJ AOP 的区别
 

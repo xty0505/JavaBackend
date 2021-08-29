@@ -78,7 +78,7 @@ int select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const 
 
 select 调用后监听所有它负责的 socket，当某个或多个 socket 连接可用时，他就会返回，如果都不可用 select 进程就会阻塞，直到 socket 可用或者超时。select 返回后就可以通过遍历 fdset 找到就绪的描述符。
 
-![image-20210310122548114](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210310122548114.png)
+![image-20210310122548114](..\pic\image-20210310122548114.png)
 
 select 几乎在所有平台上支持，有良好的跨平台性。
 
@@ -104,7 +104,7 @@ epoll 使用 epfd (epoll 文件描述符) 管理多个 socket 描述符，不限
 
 epoll 监听的 socket 就绪时，以回调函数的方式将就绪 socket 加入就绪链表，唤醒 epoll_wait() 去判断就绪链表是否为空。相比 select 和 poll，无需遍历 socket 集合，时间复杂度 O(1)
 
-![image-20210310122524376](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210310122524376.png)
+![image-20210310122524376](..\pic\image-20210310122524376.png)
 
 #### 操作模式
 

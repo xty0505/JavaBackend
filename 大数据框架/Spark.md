@@ -291,15 +291,53 @@ bypass 机制需要 shuffle 算子不能是排序类的算子，它在往内存�
 - shuffle 过程排序次数不同：MR 总共发生 3 次排序，第一次排序发生在 map 阶段，根据 key 对溢写到磁盘上数据进行排序；第二次排序发生在 map 阶段，通过 combiner 对溢出的小文件进行归并排序；第三次排序 reduce 阶段将不同 map 端的数据拉取同一个分区后进行归并排序。Spark 只有在使用 SortShuffleManager 且为普通模式下才会发生一次排序。
 - shuffle 划分逻辑不同：MR 每个Job 就需要 shuffle 一次。而 Spark 只有在产生宽依赖的时候才会进行划分。
 - shuffle fetch 后数据存放位置：MR 存储在磁盘上。Spark 首先会将数据存储在 reduce 端的内存缓冲区，当内存使用到达一定阈值时溢写到磁盘上。
-- 
+
+
+
+# SparkSQL
+
+SparkSQL 是使用 Spark 处理结构化数据的一个模块，将Spark SQL转换成RDD，然后提交到集群中去运行。
+
+## DataFrame 和 DataSet
+
+SparkSQL 提供了一个编程抽象叫做DataFrame并且作为分布式SQL查询引擎的作用。
+
+相比于Spark RDD API，Spark SQL包含了对结构化数据和在其上运算的更多信息，Spark SQL使用这些信息进行了额外的优化，使对结构化数据的操作更加高效和方便。
+
+有多种方式去使用Spark SQL，包括SQL、DataFrames API和Datasets API。但无论是哪种API或者是编程语言，它们都是基于同样的**执行引擎**，因此你可以在不同的API之间随意切换，它们各有各的特点，看你喜欢那种风格。
+
+### DataFrame
+
+DataFrame是一种以RDD为基础的分布式数据集，类似于传统数据库的二维表格，DataFrame带有Schema元信息，即DataFrame所表示的二维表数据集的每一列都带有名称和类型，但底层做了更多的优化。DataFrame可以从很多数据源构建，比如：已经存在的RDD、结构化文件、外部数据库、Hive表。
+
+![image-20210904153543440](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210904153543440.png)
+
+- RDD是分布式的对象集合，无法知道对象的详细信息；DataFrame 是分布式 Row 对象的集合，有对象的原信息（列名和列类型）
+
+### DataSet
+
+- 与 DataFrame 相比拥有完全相同的成员函数，只是每行的数据类型不同
+- DataFrame 每一行的类型是Row，可以看做是DataSet[Row]
+
+
+
+
 
 # 面试题
 
 ## 数据倾斜问题
 
 1. 调整并行度：shuffle 默认使用 HashPartitioner ，如果并行度设置不合理，可能某个节点分配到了大量的 key。
+
+   ![Image](C:\Users\aasus\AppData\Local\Temp\Image.png)
+
 2. 自定义 Partitioner
-3. 为倾斜的 key 增加随机前/后缀
+
+3. 通过Spark的Broadcast机制，将Reduce侧Join转化为Map侧Join，避免Shuffle从而完全消除Shuffle带来的数据倾斜
+
+   ![image-20210904151528280](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210904151528280.png)
+
+4. 为倾斜的 key 增加随机前/后缀
 
 ## Spark 速度更快的原因
 

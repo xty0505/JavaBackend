@@ -29,7 +29,7 @@ MySQL 日志主要包括错误日志、查询日志、慢查询日志、**事务
 
 redo log 是 InnoDB 用于保证值持久性的手段，记录事务对数据页进行了哪些修改。 redo log 包含两部分：
 
-- 内容中的日志缓冲： redo log buffer
+- 内存中的日志缓冲： redo log buffer
 - 磁盘中的日志文件：redo log file
 
 ![image-20210808153649980](..\pic\image-20210808153649980.png)

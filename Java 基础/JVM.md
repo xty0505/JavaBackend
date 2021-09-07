@@ -343,7 +343,7 @@ HotSpot 虚拟机的 Eden 和 Survivor 大小比例默认为 8:1，保证了内�
 
 ### 生命周期
 
-![image-20210222105728299](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210222105728299.png)
+![image-20210222105728299](..\pic\image-20210222105728299.png)
 
 包括以下 7 个阶段：
 

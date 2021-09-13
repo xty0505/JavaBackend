@@ -156,7 +156,7 @@ MaxLevel = 32
 
 层数越高，概率越低，满足幂次定律，节点层数为一层的概率为 (1-p)，二层为 p(1-p)，....，因此平均每个节点的层数为：
 
-![image-20210401213405040](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210401213405040.png)
+![image-20210401213405040](..\pic\image-20210401213405040.png)
 
 当 p=1/4 时，每个节点平均只有 1.33 个指针，空间开销 O(n)
 
@@ -380,7 +380,7 @@ Redis 通过 **IO 多路复用技术**来监听来自客户端的大量连接（
 - 文件事件分派器（将 Socket 关联到相应的事件处理器）
 - 事件处理器
 
-![image-20210225183106655](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210225183106655.png)
+![image-20210225183106655](..\pic\image-20210225183106655.png)
 
 ### 时间事件处理器
 

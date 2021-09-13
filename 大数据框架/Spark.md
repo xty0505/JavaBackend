@@ -15,7 +15,7 @@ $SPARK_HOME/bin/spark-submit
 
 在 Yarn-Client 模式下， Spark 应用的执行总体流程如下。
 
-![image-20210309182343182](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309182343182.png)
+![image-20210309182343182](..\pic\image-20210309182343182.png)
 
 1. Client 端提交 Spark 应用，提交时首先找到主类，然后进入主类的 main 函数执行应用。此时一般会创建 SparkSession 和 ResourceManager 进行通信。
 2. ResourceManager 创建一个 ApplicationMaster，该 ApplicationMaster 向 ResourceManager 请求资源( CPU、内存、磁盘、网络)，ResourceManager 返回资源列表。
@@ -33,7 +33,7 @@ $SPARK_HOME/bin/spark-submit
 	--class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/jars/spark-examples*.jar
 ```
 
-![image-20210309184509143](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309184509143.png)
+![image-20210309184509143](..\pic\image-20210309184509143.png)
 
 1. Client 端提交 Spark 应用，提交时首先找到主类，然后进入主类的 main 函数执行应用。此时一般会创建 SparkSession 和 ResourceManager 进行通信。
 2. ResourceManager 创建一个 ApplicationMaster，该 ApplicationMaster 向 ResourceManager 请求资源( CPU、内存、磁盘、网络)，ResourceManager 返回资源列表。此时 **Driver 也运行在 ApplicationMaster 上**。
@@ -47,14 +47,14 @@ Spark 自己实现的资源调度框架，主要组件有 Client，Master 和 Wo
 - spark-shell 提交任务时运行在 Master 上
 - spark-submit 提交任务时运行在 Client上
 
-![image-20210309190555814](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309190555814.png)
+![image-20210309190555814](..\pic\image-20210309190555814.png)
 
 1. Driver 端提交 Spark 应用，初始化 SparkSession (SparkContext )，包括 DAGScheduler 和 TaskScheduler。TaskScheduler 注册到 Master 节点并申请资源。
 2. Master 根据资源申请要求和 Worker 的心跳报告决定在哪个 Worker 上分配资源并启动 Executor。所有 Executor 反向注册到 Driver 上，然后开始执行 Spark 应用中的逻辑代码。
 3. 遇到一个执行算子产生一个 Job，DAGScheduler 将 Job 划分为多个 Stage，每个 Stage 即一个 TaskSet，TaskScheduler 将 TaskSet 分配给相应的 Worker 执行。
 4. Executor 执行任务，执行完成将结果返回给 Driver，Driver 向 Master 注销资源。
 
-详细版图解如下。![image-20210309191907624](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309191907624.png)
+详细版图解如下。![image-20210309191907624](..\pic\image-20210309191907624.png)
 
 ## 调度策略
 
@@ -95,7 +95,7 @@ private[spark] class FIFOSchedulingAlgorithm extends SchedulingAlgorithm {
 
 FIFO 模式下 rootPool 直接管理 TaskSetManager
 
-![image-20210309195938638](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309195938638.png)
+![image-20210309195938638](..\pic\image-20210309195938638.png)
 
 ### Fair
 
@@ -155,7 +155,7 @@ private[spark] class FairSchedulingAlgorithm extends SchedulingAlgorithm {
 
 Fair 模式下 rootPool 管理用户定义的 Pool，在下一层才是 TaskSetManager。
 
-![image-20210309200107534](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210309200107534.png)
+![image-20210309200107534](..\pic\image-20210309200107534.png)
 
 ## MR 与 Spark 的对比
 
@@ -251,7 +251,7 @@ Spark 1.6 以前，一直使用 HashShuffle。
 
 每个 ShuffleMapTask 会为每个 ReduceTask 创建一个缓冲区，将数据经过 Partitioner 划分到不同的缓冲区，缓冲区达到阈值后溢写到磁盘上。所有 ShuffleMapTask 执行完后，ReduceTask 将对应的数据文件拉取过来，然后执行聚合逻辑。
 
-![image-20210318123718819](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210318123718819.png)
+![image-20210318123718819](..\pic\image-20210318123718819.png)
 
 缺点：每个 ShuffleMapTask 都可能会产生对应 ReduceTask 数量的文件，如果节点数较多且每个切点上的 ShuffleMapTask 数量也很多，会导致大量的小文件。ReduceTask 在拉取数据时就会有更多网络和磁盘 I/O 开销。
 
@@ -259,7 +259,7 @@ Spark 1.6 以前，一直使用 HashShuffle。
 
 Executor 上每个核才会产生对应 ReduceTask 数量的文件，这样在同一个核内的 ShuffleMapTask 可以复用已经创建好的缓冲区和对应文件。
 
-![image-20210318124714449](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210318124714449.png)
+![image-20210318124714449](..\pic\image-20210318124714449.png)
 
 ### SortShuffleManager
 
@@ -276,13 +276,13 @@ Executor 上每个核才会产生对应 ReduceTask 数量的文件，这样在�
 
 一个 ShuffleMapTask 可能会发生多次磁盘溢写，因此会产生多个临时文件。最后会将所有的临时磁盘文件都进行合并，此外还会单独写一个**索引文件**，用来告诉下游 ReduceTask 各分区数据在文件中的起始位置和结束位置。
 
-![image-20210318133644197](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210318133644197.png)
+![image-20210318133644197](..\pic\image-20210318133644197.png)
 
 #### bypass
 
 bypass 机制需要 shuffle 算子不能是排序类的算子，它在往内存缓冲区中写数据时按照 key 的 hash 值写入对应缓冲区，并溢写到对应的文件。
 
-![image-20210318134024173](C:\Users\aasus\AppData\Roaming\Typora\typora-user-images\image-20210318134024173.png)
+![image-20210318134024173](..\pic\image-20210318134024173.png)
 
 相比普通机制的好处在于不会执行排序操作。
 
@@ -291,6 +291,68 @@ bypass 机制需要 shuffle 算子不能是排序类的算子，它在往内存�
 - shuffle 过程排序次数不同：MR 总共发生 3 次排序，第一次排序发生在 map 阶段，根据 key 对溢写到磁盘上数据进行排序；第二次排序发生在 map 阶段，通过 combiner 对溢出的小文件进行归并排序；第三次排序 reduce 阶段将不同 map 端的数据拉取同一个分区后进行归并排序。Spark 只有在使用 SortShuffleManager 且为普通模式下才会发生一次排序。
 - shuffle 划分逻辑不同：MR 每个Job 就需要 shuffle 一次。而 Spark 只有在产生宽依赖的时候才会进行划分。
 - shuffle fetch 后数据存放位置：MR 存储在磁盘上。Spark 首先会将数据存储在 reduce 端的内存缓冲区，当内存使用到达一定阈值时溢写到磁盘上。
+
+
+
+## Spark 五种 JOIN 策略
+
+### 影响 JOIN 操作的因素
+
+- 数据集大小
+- JOIN 的条件：等值连接/非等值连接
+- JOIN 的类型：
+  - 内连接(*Inner Join*)：仅从输入数据集中输出匹配连接条件的记录。
+  - 外连接(*Outer Join*)：又分为左外连接、右外链接和全外连接。
+  - 半连接(*Semi Join*)：右表只用于过滤左表的数据而不出现在结果集中。
+  - 交叉连接(*Cross Join*)：交叉联接返回左表中的所有行，左表中的每一行与右表中的所有行组合。交叉联接也称作笛卡尔积。
+
+### JOIN 策略
+
+- Shuffle Hash Join
+- Broadcast Hash Join
+- Sort Merge Join
+- Cartesian Join
+- Broadcast Nested Loop Join
+
+#### Shuffle Hash Join
+
+将大表进行**按照JOIN的key进行重分区**，保证每个相同的JOIN key都发送到同一个分区中。分区内将小表 hash化，根据 join key 与大表的分区数据匹配。
+
+- 只支持等值连接
+- 支持除全外连接之外所有 join 类型
+- 小表如果较大，可能 OOM
+
+#### Broadcast Hash Join
+
+也称 Map 端 join，无需 shuffle。当 join 的一张表很小时，可以通过 Broadcast 将其广播至所有 Executor 节点的内存中，然后在每个 Executor 内执行 hash join。![image-20210908214711748](../pic/image-20210908214711748.png)
+
+- 等值连接，无需排序
+- 除全外连接
+- 小表较大时， 可能导致 Driver 端OOM
+- 基表无法被广播，如左连接中的左表
+
+#### Sort Merge Join
+
+Spark 默认 join 策略。两张表大小差不多的情况下，shuffle 分区后将 join key 排序，然后用类似归并排序的方式将两张表的分区数据 join 起来。
+
+![image-20210908215044127](../pic/image-20210908215044127.png)
+
+- 需要 shuffle
+- 等值连接，需要排序
+
+#### Cartesian Join
+
+如果 Spark 中两张参与 Join 的表没指定join key（ON 条件）那么会产生 Cartesian product join，这个 Join 得到的结果其实就是两张行数的乘积。
+
+- 仅支持内连接
+- 支持等值和不等值连接
+- 开启参数spark.sql.crossJoin.enabled=true
+
+### Broadcast Nested Loop Join
+
+该方式是在没有合适的JOIN机制可供选择时，最终会选择该种join策略。优先级为：*Broadcast Hash Join > Sort Merge Join > Shuffle Hash Join > cartesian Join > Broadcast Nested Loop Join*.
+
+
 
 
 
